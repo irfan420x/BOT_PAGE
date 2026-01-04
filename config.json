@@ -6,9 +6,9 @@
     "repository": "https://github.com/irfan420x/BOT_PAGE.git"
   },
   "facebook": {
-    "pageAccessToken": "YOUR_PAGE_ACCESS_TOKEN",
+    "pageAccessToken": "EAAMJEY6IlTQBQR7FqmTm6MXbVzUeFPDhAGp6QDvw0w2ZAgnZBY4RyssLQQvRBTHXB7A2YjpJ6t6vmSftXFSGTwUdviAZAHErFoXZAOJEV5r7t8g1uaLM8ZBptPvXrIVS4P2NPhpVZC7qmbgS86QxFV8ciXz7ORxuJNhebsVZB2t9oLKBVfKzuO7EPbY3PA2WAp2UZBZA3xxdG9Cs820hV4E033fDq1x6fNR1BwQTlAOXdVZCnJKEz9RlRtQQZDZD",
     "verifyToken": "xx",
-    "pageId": "YOUR_PAGE_ID",
+    "pageId": "102433639125901",
     "appSecret": "YOUR_APP_SECRET"
   },
   "bot": {
