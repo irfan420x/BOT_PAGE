@@ -1,57 +1,16 @@
 {
   "app": {
-    "name": "FB Page Bot Next-Gen",
-    "version": "2.0.0",
-    "author": "IRFAN",
-    "repository": "https://github.com/irfan420x/BOT_PAGE.git"
+    "name": "FB Page Bot",
+    "version": "3.0.0",
+    "author": "IRFAN"
   },
   "facebook": {
-    "pageAccessToken": "EAAMJEY6IlTQBQR7FqmTm6MXbVzUeFPDhAGp6QDvw0w2ZAgnZBY4RyssLQQvRBTHXB7A2YjpJ6t6vmSftXFSGTwUdviAZAHErFoXZAOJEV5r7t8g1uaLM8ZBptPvXrIVS4P2NPhpVZC7qmbgS86QxFV8ciXz7ORxuJNhebsVZB2t9oLKBVfKzuO7EPbY3PA2WAp2UZBZA3xxdG9Cs820hV4E033fDq1x6fNR1BwQTlAOXdVZCnJKEz9RlRtQQZDZD",
+    "pageAccessToken": "",
     "verifyToken": "xx",
-    "pageId": "102433639125901",
-    "appSecret": "YOUR_APP_SECRET"
-  },
-  "bot": {
-    "name": "Page Assistant",
-    "prefix": "/",
-    "timezone": "Asia/Dhaka",
-    "autoRestart": true,
-    "maxRetries": 3,
-    "cooldown": 500
-  },
-  "security": {
-    "adminUIDs": ["ADMIN_USER_ID_1", "ADMIN_USER_ID_2"],
-    "allowedDomains": ["https://yourdomain.com"],
-    "rateLimit": {
-      "windowMs": 900000,
-      "max": 100
-    }
-  },
-  "features": {
-    "enableBroadcast": true,
-    "enableAnalytics": true,
-    "enableAutoReplies": true,
-    "enableScheduledPosts": false,
-    "enableMultiLanguage": false,
-    "enableWebDashboard": true
-  },
-  "logging": {
-    "level": "info",
-    "retentionDays": 30,
-    "logToFile": true,
-    "logToConsole": true
+    "pageId": "",
+    "appSecret": ""
   },
   "server": {
-    "port": 3000,
-    "host": "0.0.0.0",
-    "webhookPath": "/webhook",
-    "enableHealthCheck": true,
-    "enableMetrics": true
-  },
-  "pluginDefaults": {
-    "autoInstallDeps": true,
-    "hotReload": true,
-    "maxExecutionTime": 5000,
-    "memoryLimitMB": 50
+    "webhookPath": "/webhook"
   }
 }
