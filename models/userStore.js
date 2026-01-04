@@ -13,7 +13,10 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const config = require('../config.json');
+// Load configuration via safeConfig. We do not read config.json directly
+// because it may be missing or invalid. The getConfig() function returns
+// a merged configuration object with sensible defaults.
+const { getConfig } = require('../utils/safeConfig');
 
 class UserStore {
   constructor() {
@@ -42,7 +45,9 @@ class UserStore {
    */
   async init() {
     if (this.initialized) return;
-    const uri = process.env.MONGODB_URI || (config.db && config.db.uri);
+    // Reload configuration here in case it changed at runtime
+    const currentConfig = getConfig();
+    const uri = process.env.MONGODB_URI || (currentConfig.db && currentConfig.db.uri);
     if (uri) {
       try {
         // Dynamically import the MongoDB driver. This may throw if the
@@ -54,7 +59,7 @@ class UserStore {
           useUnifiedTopology: true,
         });
         await this.mongoClient.connect();
-        const dbName = process.env.DB_NAME || (config.db && config.db.name) || 'botdb';
+        const dbName = process.env.DB_NAME || (currentConfig.db && currentConfig.db.name) || 'botdb';
         const db = this.mongoClient.db(dbName);
         this.collection = db.collection('users');
         this.initialized = true;
@@ -116,10 +121,15 @@ class UserStore {
     if (this.collection) {
       let user = await this.collection.findOne({ uid });
       if (!user) {
+        // When creating a new user, load the current config to determine
+        // the global prefix. If config.bot or config.bot.prefix is
+        // undefined, default to '/'.
+        const currentConfig = getConfig();
+        const defaultPrefix = (currentConfig.bot && currentConfig.bot.prefix) || '/';
         user = {
           uid,
           balance: 0,
-          prefix: config.bot.prefix || '/',
+          prefix: defaultPrefix,
           nickname: '',
         };
         await this.collection.insertOne(user);
@@ -127,10 +137,12 @@ class UserStore {
       return user;
     }
     if (!this.users[uid]) {
+      const currentConfig = getConfig();
+      const defaultPrefix = (currentConfig.bot && currentConfig.bot.prefix) || '/';
       this.users[uid] = {
         uid,
         balance: 0,
-        prefix: config.bot.prefix || '/',
+        prefix: defaultPrefix,
         nickname: '',
       };
       await this.saveToFile();
@@ -175,7 +187,9 @@ class UserStore {
    */
   async setPrefix(uid, prefix) {
     const user = await this.getUser(uid);
-    user.prefix = prefix || config.bot.prefix || '/';
+    const currentConfig = getConfig();
+    const defaultPrefix = (currentConfig.bot && currentConfig.bot.prefix) || '/';
+    user.prefix = prefix || defaultPrefix;
     if (this.collection) {
       await this.collection.updateOne({ uid }, { $set: { prefix: user.prefix } }, { upsert: true });
     } else {
@@ -192,7 +206,9 @@ class UserStore {
    */
   async getPrefix(uid) {
     const user = await this.getUser(uid);
-    return user.prefix || config.bot.prefix || '/';
+    const currentConfig = getConfig();
+    const defaultPrefix = (currentConfig.bot && currentConfig.bot.prefix) || '/';
+    return user.prefix || defaultPrefix;
   }
 
   /**
