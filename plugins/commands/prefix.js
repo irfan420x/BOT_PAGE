@@ -12,7 +12,8 @@
  */
 
 const fbApi = require('../../utils/fbApi');
-const config = require('../../config.json');
+// Load configuration via safeConfig so missing keys do not crash the plugin
+const { getConfig } = require('../../utils/safeConfig');
 const userStore = require('../../models/userStore');
 
 module.exports = {
@@ -37,10 +38,11 @@ module.exports = {
    */
   start: async function(senderId, args) {
     try {
+      const config = getConfig();
       // When called with no arguments, simply show the current prefix
       if (!args || args.length === 0) {
         const userPrefix = await userStore.getPrefix(senderId);
-        const globalPrefix = config.bot.prefix;
+        const globalPrefix = (config.bot && config.bot.prefix) || '/';
         const message = `📌 Your current prefix: \`${userPrefix}\`\n` +
                         `🌐 Global prefix: \`${globalPrefix}\`\n\n` +
                         `To change your prefix, use: \`${userPrefix}prefix <newPrefix>\`\n` +
@@ -51,8 +53,9 @@ module.exports = {
       const newPrefix = args[0].trim();
       // If user wants to reset their prefix
       if (newPrefix.toLowerCase() === 'reset') {
-        await userStore.setPrefix(senderId, config.bot.prefix);
-        await fbApi.sendMessage(senderId, `🔄 Prefix reset to global default: \`${config.bot.prefix}\``);
+        const defaultPrefix = (config.bot && config.bot.prefix) || '/';
+        await userStore.setPrefix(senderId, defaultPrefix);
+        await fbApi.sendMessage(senderId, `🔄 Prefix reset to global default: \`${defaultPrefix}\``);
         return;
       }
       // Validate the new prefix. We disallow spaces to prevent confusion

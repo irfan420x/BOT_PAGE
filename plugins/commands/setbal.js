@@ -13,7 +13,9 @@
  */
 
 const fbApi = require('../../utils/fbApi');
-const config = require('../../config.json');
+// Load configuration via safeConfig. This allows the admin UID list to be
+// updated without crashing if the config is missing.
+const { getConfig } = require('../../utils/safeConfig');
 const userStore = require('../../models/userStore');
 
 module.exports = {
@@ -29,6 +31,12 @@ module.exports = {
 
   start: async function(senderId, args) {
     try {
+      const config = getConfig();
+      const admins = (config.security && config.security.adminUIDs) || [];
+      if (!admins.includes(senderId)) {
+        await fbApi.sendMessage(senderId, '❌ You are not authorised to use this command.');
+        return;
+      }
       // Validate arguments
       if (!args || args.length < 2) {
         await fbApi.sendMessage(senderId, '⚠️ Usage: /setbal <uid> <amount>');

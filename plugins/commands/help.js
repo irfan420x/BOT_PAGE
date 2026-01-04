@@ -5,7 +5,11 @@
  * Version: 2.0.0
  */
 
-const config = require('../../config.json');
+// Load configuration via the safeConfig helper. We use a function here
+// because the configuration may change at runtime and safeConfig will
+// merge missing sections with sensible defaults. Do not require
+// config.json directly as it may not exist or may be invalid.
+const { getConfig } = require('../../utils/safeConfig');
 const fbApi = require('../../utils/fbApi');
 // Import the user store so we can fetch a user's custom prefix. When a
 // prefix isn't set for a user, the global prefix from config.bot.prefix
@@ -26,6 +30,7 @@ module.exports = {
 
   start: async function(senderId, args, originalMessage) {
     try {
+      const config = getConfig();
       const commandPlugins = require('../../utils/pluginLoader').getCommandPlugins();
       
       // If specific command requested
@@ -72,9 +77,10 @@ module.exports = {
       // otherwise fall back to the global default. This ensures the help
       // message reflects the prefix the user should use to invoke commands.
       const userPrefix = await userStore.getPrefix(senderId);
-      const prefix = userPrefix || config.bot.prefix;
+      const prefix = userPrefix || (config.bot && config.bot.prefix) || '/';
 
-      let helpMessage = `🤖 *${config.bot.name} Help Menu*\n\n`;
+      const botName = (config.bot && config.bot.name) || (config.app && config.app.name) || 'FB Page Bot';
+      let helpMessage = `🤖 *${botName} Help Menu*\n\n`;
       helpMessage += `*Prefix*: \`${prefix}\`\n`;
       helpMessage += `*Total Commands*: ${commandPlugins.length}\n\n`;
       
@@ -87,8 +93,8 @@ module.exports = {
       }
       
       helpMessage += `📝 *Usage*: Use \`${prefix}help [command]\` for details\n`;
-      helpMessage += `⚡ *Bot Version*: ${config.app.version}\n`;
-      helpMessage += `👨‍💻 *Author*: ${config.app.author}`;
+      helpMessage += `⚡ *Bot Version*: ${(config.app && config.app.version) || '1.0.0'}\n`;
+      helpMessage += `👨‍💻 *Author*: ${(config.app && config.app.author) || 'Unknown'}`;
       
       // Add quick replies for categories
       const quickReplies = Object.keys(commandsByCategory).map(category => ({
