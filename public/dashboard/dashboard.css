@@ -1,11 +1,9 @@
 /*
- * Dashboard styles for the IRFAN Page Bot.
+ * Minimal dashboard styling for the FB Page Bot.
  *
- * The dashboard presents basic runtime information about the bot and the
- * associated Facebook page. It is designed to be simple and mobile friendly.
- * If you would like to further customise the appearance, adjust colours,
- * fonts or layout here. All elements are scoped within the card container to
- * avoid leaking styles to other parts of the site.
+ * The dashboard uses a single container centred on the page. Each section
+ * of information is presented in an `.info` block. Colours and fonts are
+ * dark‑mode friendly. Feel free to adjust values to suit your taste.
  */
 
 body {
@@ -16,85 +14,58 @@ body {
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #001c2e, #04284b);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
   color: #f0f0f0;
 }
 
-/* Card container for the dashboard */
-.card {
+.container {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 12px;
   padding: 20px;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
   overflow-y: auto;
 }
 
-.card h1 {
+.container h1 {
   margin: 0 0 16px 0;
   font-size: 26px;
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
 }
 
-/* Section styling */
-.section {
+.info {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 12px;
   margin-top: 14px;
-}
-
-.section h2 {
-  margin: 0 0 8px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #f5f5f5;
-}
-
-.section div {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
   font-size: 14px;
+  line-height: 1.4;
 }
 
-.label {
+.info strong {
   font-weight: 600;
-  margin-right: 8px;
 }
 
-/* Status badges */
 .status {
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 600;
-  text-transform: capitalize;
+  text-transform: uppercase;
 }
 
-.status.online {
+.status.ready {
   background-color: #28a745;
   color: #fff;
 }
 
-.status.offline {
+.status.setup {
   background-color: #dc3545;
   color: #fff;
 }
 
-.status.degraded {
-  background-color: #ffc107;
-  color: #212529;
-}
-
-/* Copy button styling */
 .copy-button {
   margin-top: 8px;
   padding: 6px 14px;
@@ -115,13 +86,25 @@ body {
   background-color: #003e8a;
 }
 
-#copyMessage {
-  margin-top: 4px;
+.mono {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.missing {
+  list-style: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.missing li {
+  margin: 2px 0;
   font-size: 12px;
   color: #ffc107;
 }
 
-.footer {
+footer {
   margin-top: 16px;
   font-size: 12px;
   text-align: center;

@@ -1,76 +1,52 @@
 <!DOCTYPE html>
 <!--
-  Web dashboard for the IRFAN Page Bot.
+  FB Page Bot Dashboard
 
-  This page loads basic runtime information from the server via the `/status`
-  endpoint and displays it in a simple card layout. The copy button allows
-  quickly copying the webhook URL to the clipboard. Styling and behaviour
-  can be customised by editing `dashboard.css` and `dashboard.js`.
+  This minimal dashboard provides critical setup information for the
+  Facebook Page Messenger bot. It is designed to work even when the
+  configuration is incomplete. The page displays the callback URL and
+  verify token needed for Facebook Webhooks, highlights any missing
+  configuration values and offers a short step‑by‑step guide for
+  onboarding the bot. Copy buttons make it easy to copy the callback
+  URL to your clipboard. Styling is kept simple; modify dashboard.css
+  for custom themes.
 -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IRFAN Page Bot Dashboard</title>
+    <title>FB Page Bot Dashboard</title>
     <link rel="stylesheet" href="dashboard.css" />
   </head>
   <body>
-    <div class="card">
-      <h1>🤖 <span id="botName">IRFAN Bot</span></h1>
-
-      <!-- Page Info Section -->
-      <div class="section" id="pageSection">
-        <h2>Page Info</h2>
-        <div><span class="label">Name:</span><span id="pageName">Loading…</span></div>
-        <div><span class="label">ID:</span><span id="pageId">Loading…</span></div>
-        <div><span class="label">Status:</span><span id="status" class="status offline">Checking…</span></div>
+    <div class="container">
+      <h1>🤖 <span id="botName">FB Page Bot</span></h1>
+      <div class="info">
+        <p><strong>Page Name:</strong> <span id="pageName">–</span></p>
+        <p><strong>Page ID:</strong> <span id="pageId">–</span></p>
+        <p><strong>Status:</strong> <span id="botStatus" class="status">–</span></p>
       </div>
-
-      <!-- Bot Info Section -->
-      <div class="section" id="botSection">
-        <h2>Bot Info</h2>
-        <div><span class="label">Version:</span><span id="botVersion">–</span></div>
-        <div><span class="label">Node.js:</span><span id="nodeVersion">–</span></div>
-        <div><span class="label">Mode:</span><span id="mode">–</span></div>
-        <div><span class="label">Uptime:</span><span id="uptime">–</span></div>
-        <div><span class="label">Server Time:</span><span id="serverTime">–</span></div>
+      <div class="info">
+        <p><strong>Callback URL:</strong> <span id="callbackUrl" class="mono">–</span></p>
+        <button id="copyCallback" class="copy-button">Copy URL</button>
+        <p><strong>Verify Token:</strong> <span id="verifyToken" class="mono">–</span></p>
       </div>
-
-      <!-- Activity Stats Section -->
-      <div class="section" id="statsSection">
-        <h2>Activity</h2>
-        <div><span class="label">Messages:</span><span id="messagesProcessed">0</span></div>
-        <div><span class="label">Comments:</span><span id="commentsProcessed">0</span></div>
-        <div><span class="label">Postbacks:</span><span id="postbacksProcessed">0</span></div>
-        <div><span class="label">Duplicates blocked:</span><span id="duplicatesBlocked">0</span></div>
+      <div class="info">
+        <p><strong>Missing Configuration:</strong></p>
+        <ul id="missingList" class="missing"></ul>
       </div>
-
-      <!-- Plugin Stats Section -->
-      <div class="section" id="pluginsSection">
-        <h2>Plugins</h2>
-        <div><span class="label">Commands:</span><span id="commandsCount">0</span></div>
-        <div><span class="label">Postbacks:</span><span id="postbacksCount">0</span></div>
-        <div><span class="label">Comments:</span><span id="commentsCount">0</span></div>
+      <div class="info">
+        <h2>Setup Guide</h2>
+        <ol id="setupGuide">
+          <li>Open Facebook Developer Dashboard and navigate to Webhooks.</li>
+          <li>Paste the callback URL above into the Callback URL field.</li>
+          <li>Enter the verify token exactly as shown.</li>
+          <li>Select "Page" and subscribe to desired events.</li>
+          <li>Generate a Page Access Token and update your config.json.</li>
+        </ol>
       </div>
-
-      <!-- System Stats Section -->
-      <div class="section" id="systemSection">
-        <h2>System</h2>
-        <div><span class="label">Heap Used:</span><span id="heapUsed">–</span></div>
-        <div><span class="label">Heap Total:</span><span id="heapTotal">–</span></div>
-        <div><span class="label">RSS:</span><span id="rss">–</span></div>
-      </div>
-
-      <!-- Webhook Section -->
-      <div class="section" id="webhookSection">
-        <h2>Webhook</h2>
-        <div><span id="webhookUrl" style="word-break: break-all; font-size: 12px;">–</span></div>
-        <button class="copy-button" id="copyWebhook">Copy Webhook</button>
-        <div id="copyMessage"></div>
-      </div>
-      <footer class="footer">🖥️ Designed by IRFAN</footer>
+      <footer>🖥️ Designed by IRFAN</footer>
     </div>
-
     <script src="dashboard.js"></script>
   </body>
 </html>
