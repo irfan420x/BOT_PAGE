@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--
+  Web dashboard for the IRFAN Page Bot.
+
+  This page loads basic runtime information from the server via the `/status`
+  endpoint and displays it in a simple card layout. The copy button allows
+  quickly copying the webhook URL to the clipboard. Styling and behaviour
+  can be customised by editing `dashboard.css` and `dashboard.js`.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IRFAN Page Bot Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="card">
+      <h1>🤖 <span id="botName">IRFAN Bot</span></h1>
+
+      <!-- Page Info Section -->
+      <div class="section" id="pageSection">
+        <h2>Page Info</h2>
+        <div><span class="label">Name:</span><span id="pageName">Loading…</span></div>
+        <div><span class="label">ID:</span><span id="pageId">Loading…</span></div>
+        <div><span class="label">Status:</span><span id="status" class="status offline">Checking…</span></div>
+      </div>
+
+      <!-- Bot Info Section -->
+      <div class="section" id="botSection">
+        <h2>Bot Info</h2>
+        <div><span class="label">Version:</span><span id="botVersion">–</span></div>
+        <div><span class="label">Node.js:</span><span id="nodeVersion">–</span></div>
+        <div><span class="label">Mode:</span><span id="mode">–</span></div>
+        <div><span class="label">Uptime:</span><span id="uptime">–</span></div>
+        <div><span class="label">Server Time:</span><span id="serverTime">–</span></div>
+      </div>
+
+      <!-- Activity Stats Section -->
+      <div class="section" id="statsSection">
+        <h2>Activity</h2>
+        <div><span class="label">Messages:</span><span id="messagesProcessed">0</span></div>
+        <div><span class="label">Comments:</span><span id="commentsProcessed">0</span></div>
+        <div><span class="label">Postbacks:</span><span id="postbacksProcessed">0</span></div>
+        <div><span class="label">Duplicates blocked:</span><span id="duplicatesBlocked">0</span></div>
+      </div>
+
+      <!-- Plugin Stats Section -->
+      <div class="section" id="pluginsSection">
+        <h2>Plugins</h2>
+        <div><span class="label">Commands:</span><span id="commandsCount">0</span></div>
+        <div><span class="label">Postbacks:</span><span id="postbacksCount">0</span></div>
+        <div><span class="label">Comments:</span><span id="commentsCount">0</span></div>
+      </div>
+
+      <!-- System Stats Section -->
+      <div class="section" id="systemSection">
+        <h2>System</h2>
+        <div><span class="label">Heap Used:</span><span id="heapUsed">–</span></div>
+        <div><span class="label">Heap Total:</span><span id="heapTotal">–</span></div>
+        <div><span class="label">RSS:</span><span id="rss">–</span></div>
+      </div>
+
+      <!-- Webhook Section -->
+      <div class="section" id="webhookSection">
+        <h2>Webhook</h2>
+        <div><span id="webhookUrl" style="word-break: break-all; font-size: 12px;">–</span></div>
+        <button class="copy-button" id="copyWebhook">Copy Webhook</button>
+        <div id="copyMessage"></div>
+      </div>
+      <footer class="footer">🖥️ Designed by IRFAN</footer>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+</html>
