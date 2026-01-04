@@ -6,18 +6,26 @@
 
 const winston = require('winston');
 const moment = require('moment-timezone');
-const config = require('../config.json');
+// Load configuration with fallbacks. Using safeConfig ensures that
+// missing sections such as `logging` or `bot` do not cause the logger
+// to throw errors during initialisation.
+const { getConfig } = require('./safeConfig');
+const config = getConfig();
 
 // Custom log format with colors
 const customFormat = winston.format.combine(
   winston.format.timestamp({
-    format: () => moment().tz(config.bot.timezone).format('YYYY-MM-DD HH:mm:ss')
+    // If the timezone is undefined, default to UTC
+    format: () => {
+      const tz = (config.bot && config.bot.timezone) || 'UTC';
+      return moment().tz(tz).format('YYYY-MM-DD HH:mm:ss');
+    },
   }),
   winston.format.errors({ stack: true }),
   winston.format.printf(({ timestamp, level, message, ...meta }) => {
     const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
     return `[${timestamp}] ${level}: ${message}${metaStr}`;
-  })
+  }),
 );
 
 // Colorize console output
@@ -28,7 +36,7 @@ const consoleFormat = winston.format.combine(
 
 // Create logger instance
 const logger = winston.createLogger({
-  level: config.logging.level || 'info',
+  level: (config.logging && config.logging.level) || 'info',
   format: customFormat,
   transports: [
     new winston.transports.Console({
@@ -38,7 +46,7 @@ const logger = winston.createLogger({
 });
 
 // Add file transport if enabled
-if (config.logging.logToFile) {
+if (config.logging && config.logging.logToFile) {
   const fs = require('fs');
   const path = require('path');
   const logsDir = path.join(__dirname, '../logs');
@@ -68,10 +76,13 @@ if (config.logging.logToFile) {
 
 // Helper methods
 logger.botStart = function() {
-  this.info('🤖 Starting Next-Gen Facebook Page Bot...');
-  this.info(`📄 Page: ${config.facebook.pageId}`);
-  this.info(`🕐 Timezone: ${config.bot.timezone}`);
-  this.info(`🔧 Prefix: ${config.bot.prefix}`);
+  this.info('🤖 Starting Next‑Gen Facebook Page Bot...');
+  const pageId = (config.facebook && config.facebook.pageId) || 'N/A';
+  const timezone = (config.bot && config.bot.timezone) || 'UTC';
+  const prefix = (config.bot && config.bot.prefix) || '/';
+  this.info(`📄 Page: ${pageId}`);
+  this.info(`🕐 Timezone: ${timezone}`);
+  this.info(`🔧 Prefix: ${prefix}`);
 };
 
 logger.botReady = function() {

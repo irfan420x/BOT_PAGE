@@ -8,14 +8,21 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
-const config = require('../config.json');
+// Load configuration via safeConfig. Using safeConfig ensures we can
+// gracefully handle missing tokens and IDs without crashing. We avoid
+// requiring config.json directly because it may be absent or invalid.
+const { getConfig } = require('./safeConfig');
+const config = getConfig();
 const logger = require('./logger');
 
 class FacebookAPI {
   constructor() {
     this.baseURL = 'https://graph.facebook.com/v18.0';
-    this.accessToken = config.facebook.pageAccessToken;
-    this.pageId = config.facebook.pageId;
+    // Use empty strings as defaults if tokens are missing. Do not crash if
+    // `facebook` is undefined – safeConfig ensures `facebook` exists but
+    // empty values may still be present.
+    this.accessToken = (config.facebook && config.facebook.pageAccessToken) || '';
+    this.pageId = (config.facebook && config.facebook.pageId) || '';
     this.axios = axios.create({
       baseURL: this.baseURL,
       timeout: 30000,
@@ -29,7 +36,10 @@ class FacebookAPI {
   async request(method, endpoint, data = null, params = {}, retries = 3) {
     params = {
       ...params,
-      access_token: this.accessToken,
+      // Only include the access token if it is present. Passing an empty
+      // token to the Facebook API will result in an authentication error,
+      // so avoid including it when undefined or blank.
+      ...(this.accessToken ? { access_token: this.accessToken } : {}),
     };
 
     try {
@@ -92,6 +102,11 @@ class FacebookAPI {
   // Message sending methods
   async sendMessage(recipientId, message, type = 'text', options = {}) {
     try {
+      // If we don't have an access token or page ID, we cannot call the API.
+      if (!this.accessToken || !this.pageId) {
+        logger.warn('⚠️ Cannot send message – Facebook page access token or page ID missing');
+        return;
+      }
       let payload = {
         recipient: { id: recipientId },
       };

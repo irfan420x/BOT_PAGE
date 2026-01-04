@@ -10,7 +10,13 @@ const chokidar = require('chokidar');
 const { exec } = require('child_process');
 const util = require('util');
 const logger = require('./logger');
-const config = require('../config.json');
+// Load the configuration via safeConfig. This returns the merged config
+// containing sensible fallback values, ensuring properties like
+// `pluginDefaults` are always defined. We intentionally avoid requiring
+// config.json directly here because that file may not exist or may be
+// missing keys at startup.
+const { getConfig } = require('./safeConfig');
+const config = getConfig();
 
 const execPromise = util.promisify(exec);
 
@@ -52,9 +58,17 @@ class PluginLoader {
     // Load all plugins
     await this.loadAllPlugins();
     
-    // Setup hot reload if enabled
-    if (config.pluginDefaults.hotReload) {
+    // Setup hot reload if enabled and not running in a serverless environment.
+    // On platforms like Vercel the filesystem is read-only and watchers are
+    // unsupported, so we disable hot reload automatically. Detection is
+    // based on environment variables that indicate serverless deployment.
+    const isServerless = () => {
+      return !!process.env.VERCEL || !!process.env.NOW_REGION || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+    };
+    if (config.pluginDefaults.hotReload && !isServerless()) {
       this.setupHotReload();
+    } else if (config.pluginDefaults.hotReload && isServerless()) {
+      logger.info('⚠️ Hot reload disabled in serverless environment');
     }
     
     logger.info('✅ Plugin system initialized');
