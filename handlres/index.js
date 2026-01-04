@@ -5,18 +5,26 @@
  * Version: 2.0.0
  */
 
-const config = require('../config.json');
+// Load configuration safely. This module will autoâ€‘create and parse
+// config.json, falling back to defaults if necessary.
+const { getConfig } = require('../utils/safeConfig');
 const fbApi = require('../utils/fbApi');
 const logger = require('../utils/logger');
 const { MessageTracker } = require('../utils/trackers');
 
-// Load the user store. This provides per‑user state such as command
+// Load the user store. This provides perâ€‘user state such as command
 // prefixes, nicknames and game balances. If a MongoDB connection is
 // unavailable, the store falls back to a local JSON file. See
 // models/userStore.js for details.
 const userStore = require('../models/userStore');
 
 const messageTracker = new MessageTracker();
+
+// Load an initial configuration. This will be refreshed at runtime in
+// handlers to pick up any changes on disk. We deliberately call
+// getConfig() here to ensure that config.json exists and falls back to
+// defaults; however the returned object should not be mutated.
+let config = getConfig();
 
 // Command prefix matching
 // Parse a command by stripping a given prefix from the beginning of the
@@ -37,11 +45,13 @@ function parseCommand(text, prefix) {
 // Handle incoming messages
 async function handleMessage(message, senderId, recipientId, timestamp) {
   try {
+    // Reload configuration on each message to reflect dynamic changes
+    config = getConfig();
     const text = message.text || '';
     const attachments = message.attachments || [];
     const quickReply = message.quick_reply;
     
-    logger.info(`📩 Message from ${senderId}: ${text.substring(0, 100)}`);
+    logger.info(`ðŸ“© Message from ${senderId}: ${text.substring(0, 100)}`);
     
     // Handle quick replies
     if (quickReply) {
@@ -59,15 +69,18 @@ async function handleMessage(message, senderId, recipientId, timestamp) {
     // the global prefix is returned by getPrefix().
     const userPrefix = await userStore.getPrefix(senderId);
     let commandData = null;
-    // First check the user‑specific prefix. If the message starts with
+    // First check the userâ€‘specific prefix. If the message starts with
     // the user's custom prefix, we use it. Otherwise fall back to the
     // globally configured prefix. This allows users to continue using
     // global commands if they haven't set a prefix or forget their custom
     // one.
     if (userPrefix && text.startsWith(userPrefix)) {
       commandData = parseCommand(text, userPrefix);
-    } else if (config.bot.prefix && text.startsWith(config.bot.prefix)) {
-      commandData = parseCommand(text, config.bot.prefix);
+    } else {
+      const globalPrefix = (config.bot && config.bot.prefix) || '/';
+      if (text.startsWith(globalPrefix)) {
+        commandData = parseCommand(text, globalPrefix);
+      }
     }
     if (commandData) {
       await handleCommand(commandData, senderId, recipientId);
@@ -80,6 +93,7 @@ async function handleMessage(message, senderId, recipientId, timestamp) {
     messageTracker.trackMessage(senderId, 'message', true);
   } catch (error) {
     logger.error('Error handling message:', error);
+    // Error is logged and the server continues to run
     messageTracker.trackMessage(senderId, 'message', false);
     
     // Send error message to user
@@ -101,7 +115,7 @@ async function handlePostback(postback, senderId, recipientId, timestamp) {
       payload = postback.payload;
     }
     
-    logger.info(`🔘 Postback from ${senderId}:`, payload);
+    logger.info(`ðŸ”˜ Postback from ${senderId}:`, payload);
     
     // Load postback plugins
     const postbackPlugins = require('../utils/pluginLoader').getPostbackPlugins();
@@ -136,7 +150,7 @@ async function handleComment(commentData, pageId) {
   try {
     const { commentId, postId, senderId, senderName, message, createdAt } = commentData;
     
-    logger.info(`💬 Comment from ${senderName}: ${message}`);
+    logger.info(`ðŸ’¬ Comment from ${senderName}: ${message}`);
     
     // Load comment plugins
     const commentPlugins = require('../utils/pluginLoader').getCommentPlugins();
@@ -174,7 +188,7 @@ async function handleAttachments(attachments, senderId) {
     const type = attachment.type;
     const url = attachment.payload?.url;
     
-    logger.info(`📎 ${type} attachment from ${senderId}: ${url}`);
+    logger.info(`ðŸ“Ž ${type} attachment from ${senderId}: ${url}`);
     
     switch (type) {
       case 'image':
@@ -202,6 +216,8 @@ async function handleAttachments(attachments, senderId) {
 // Handle commands
 async function handleCommand(commandData, senderId, recipientId) {
   const { command, args } = commandData;
+  // Reload configuration on each command to pick up changes
+  config = getConfig();
   
   // Load command plugins
   const commandPlugins = require('../utils/pluginLoader').getCommandPlugins();
@@ -212,12 +228,12 @@ async function handleCommand(commandData, senderId, recipientId) {
         (plugin.config.aliases && plugin.config.aliases.includes(command))) {
       
       // Check if user is admin for admin commands
-      if (plugin.config.category === 'admin' && 
-          !config.security.adminUIDs.includes(senderId)) {
-        await fbApi.sendMessage(senderId, 
-          'You do not have permission to use this command.'
-        );
-        return;
+      if (plugin.config.category === 'admin') {
+        const admins = (config.security && config.security.adminUIDs) || [];
+        if (!admins.includes(senderId)) {
+          await fbApi.sendMessage(senderId, 'You do not have permission to use this command.');
+          return;
+        }
       }
       
       // Execute command
