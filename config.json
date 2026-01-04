@@ -1,0 +1,57 @@
+{
+  "app": {
+    "name": "FB Page Bot Next-Gen",
+    "version": "2.0.0",
+    "author": "IRFAN",
+    "repository": "https://github.com/irfan/facebook-page-bot"
+  },
+  "facebook": {
+    "pageAccessToken": "YOUR_PAGE_ACCESS_TOKEN",
+    "verifyToken": "YOUR_VERIFY_TOKEN",
+    "pageId": "YOUR_PAGE_ID",
+    "appSecret": "YOUR_APP_SECRET"
+  },
+  "bot": {
+    "name": "Page Assistant",
+    "prefix": "/",
+    "timezone": "Asia/Dhaka",
+    "autoRestart": true,
+    "maxRetries": 3,
+    "cooldown": 500
+  },
+  "security": {
+    "adminUIDs": ["ADMIN_USER_ID_1", "ADMIN_USER_ID_2"],
+    "allowedDomains": ["https://yourdomain.com"],
+    "rateLimit": {
+      "windowMs": 900000,
+      "max": 100
+    }
+  },
+  "features": {
+    "enableBroadcast": true,
+    "enableAnalytics": true,
+    "enableAutoReplies": true,
+    "enableScheduledPosts": false,
+    "enableMultiLanguage": false,
+    "enableWebDashboard": true
+  },
+  "logging": {
+    "level": "info",
+    "retentionDays": 30,
+    "logToFile": true,
+    "logToConsole": true
+  },
+  "server": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "webhookPath": "/webhook",
+    "enableHealthCheck": true,
+    "enableMetrics": true
+  },
+  "pluginDefaults": {
+    "autoInstallDeps": true,
+    "hotReload": true,
+    "maxExecutionTime": 5000,
+    "memoryLimitMB": 50
+  }
+}
